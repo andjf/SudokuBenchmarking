@@ -17,25 +17,29 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.TestPropertySource;
 
 import dev.andrew.sudoku.model.Sudoku;
 import dev.andrew.sudoku.solver.SudokuSolver;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestPropertySource("classpath:application.properties")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class SudokuApplicationTests {
 
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static final String PUZZLES_DIR = "puzzles";
-    private static final String SOLVED_DIR = "solved";
-    private static final String UNSOLVED_DIR = "unsolved";
+    @Value("${puzzles.solved.dir}")
+    private String SOLVED_DIR;
+    @Value("${puzzles.unsolved.dir}")
+    private String UNSOLVED_DIR;
 
     @Test
     public void SudokuSolver_beans_are_successfully_loaded_into_application_context() {
@@ -45,7 +49,7 @@ class SudokuApplicationTests {
 
     @Test
     public void Sudoku_can_load_puzzle_from_String() throws IOException {
-        String puzzleString = FileUtils.fileContents(String.format("%s/%s/board00.txt", PUZZLES_DIR, UNSOLVED_DIR));
+        String puzzleString = FileUtils.fileContents(String.format("%s/board00.txt", UNSOLVED_DIR));
         assertThat(puzzleString).isNotNull();
         Sudoku puzzle = Sudoku.fromString(puzzleString);
         assertThat(puzzle).isNotNull();
@@ -90,8 +94,8 @@ class SudokuApplicationTests {
     }
 
     public Map<String, String> getUnsolvedToSolvedMapping() throws IOException {
-        Map<String, String> solvedFileContentMap = getFileContentMap(PUZZLES_DIR + "/" + SOLVED_DIR);
-        Map<String, String> unsolvedFileContentMap = getFileContentMap(PUZZLES_DIR + "/" + UNSOLVED_DIR);
+        Map<String, String> solvedFileContentMap = getFileContentMap(SOLVED_DIR);
+        Map<String, String> unsolvedFileContentMap = getFileContentMap(UNSOLVED_DIR);
 
         return unsolvedFileContentMap.entrySet().stream()
                 .filter(entry -> solvedFileContentMap.containsKey(entry.getKey()))
@@ -105,7 +109,7 @@ class SudokuApplicationTests {
      * and the value is the content of that file
      *
      * Let the test/resources directory look like this:
-     * 
+     *
      * <pre>{@code
      * .
      * └── puzzles
