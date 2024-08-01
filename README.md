@@ -6,3 +6,10 @@
 - [ ] Improve comments and general documentation.
 - [ ] Increase the number of test boards
 - [ ] Create further implementations of `SudokuSolver`
+- [ ] In `Sudoku` create methods
+  - `Stream<Byte> row(int y)`
+  - `Stream<Byte> column(int x)`
+  - `Stream<Byte> cell(int cellX, int cellY)`
+  - `Stream<Stream<Byte>> rows()`
+  - `Stream<Stream<Byte>> columns()`
+  - `Stream<Stream<Byte>> cells()`
